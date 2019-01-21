@@ -154,12 +154,26 @@ def folium_map_df(df):
 	# setup the map object centered in South West Houston
 	my_map1 = folium.Map(location = [29.7106415,-95.4970872], 
 											zoom_start = 12 )
-	for i in range(0,len(lat_list)):
-		folium.Marker([lat_list.iloc[i], lon_list.iloc[i]], popup = pop_up_name.iloc[i]).add_to(my_map1)
+	# slow loop
+	#for i in range(0,len(lat_list)):
+	#	folium.Marker([lat_list.iloc[i], lon_list.iloc[i]], popup = pop_up_name.iloc[i]).add_to(my_map1)
+
+	# less slow loop
+	#for index, row in df.iterrows():
+	#	folium.Marker([row.latitude, row.longitude], popup=row['Program: Program Name']).add_to(my_map1)
+
+	# using apply (fast!)
+	df.apply(lambda row: folium_marker_maker(row.latitude, row.longitude, row['Program: Program Name'], my_map1), axis=1)
+
+	# vectorization
+	# This didnt work in this case
+	#folium_marker_maker(df['latitude'],df['longitude'],df['Program: Program Name'],my_map1)
 
 	# save method of Map object will create a map 
 	my_map1.save(os.path.join(path,'maps','folium_map.html')) 
 
+def folium_marker_maker(lat,lon,pop,the_map):
+	folium.Marker([lat,lon],popup=pop).add_to(the_map)
 
 def load_and_clean_data():
 	df = load_data()
