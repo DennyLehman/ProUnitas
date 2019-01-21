@@ -7,7 +7,8 @@ import requests
 import json
 import folium
 print(os.getcwd())
-path = r'C:\Users\slin2\Documents\ProUnitas\maps'
+#path = r'C:\Users\slin2\Documents\ProUnitas'
+path = os.getcwd()
 
 def test_requests():
 	#this test needs an api key from google maps
@@ -17,6 +18,7 @@ def test_requests():
 	#print(resp_json_payload['results'][0]['geometry']['location'])
 
 def test_requests2():
+	#this test needs an api key from google maps
 	GOOGLE_MAPS_API_URL = 'http://maps.googleapis.com/maps/api/geocode/json'
 
 	params = {
@@ -50,7 +52,7 @@ def test_gmplot():
 	gmap.marker(1,11)
 	gmap.marker(2,22)
 	gmap.points[0][0]
-	gmap.draw(os.path.join(path,'test_map.html'))
+	gmap.draw(os.path.join(path,'maps','test_map.html'))
 
 
 def test_geolocator():
@@ -64,20 +66,21 @@ def test_geolocator():
 	print(location.raw)
 
 def test_marker():
-
+	# didnt work great
 	gmap = gmplot.GoogleMapPlotter(location.latitude, location.longitude, 15)
 
 	gmap.marker(location.latitude, location.longitude, 'cornflowerblue', title='My House')
 
-	gmap.draw(os.path.join(path,'test_map.html'))
+	gmap.draw(os.path.join(path,'maps','test_map.html'))
 
 def test_from_geocode():
+	# this method wasnt supported and doesnt work anymore
 	gmap2 = gmplot.GoogleMapPlotter.from_geocode( "Dehradun, India" ) 
 	  
-	gmap2.draw(os.path.join(path,'test_india.html')) 
+	gmap2.draw(os.path.join(path,'maps','test_india.html')) 
 
 def load_data():
-	csv_path =r'C:\Users\slin2\Documents\ProUnitas\Service_Provider_Mapping.csv'
+	csv_path =os.path.join(path,'Service_Provider_Mapping.csv')
 	# error in encoding 
 	# https://stackoverflow.com/questions/18171739/unicodedecodeerror-when-reading-csv-file-in-pandas-with-python
 	df = pd.read_csv(csv_path,sep=',',encoding="ISO-8859-1")
@@ -92,9 +95,10 @@ def load_data():
 	# Fix \n in street address here
 	df['Billing Street'] = df['Billing Street'].str.replace(pat='\n', repl=' ',case=False)
 
+	# creates address column
 	df['address'] = df['Billing Street'] +' '+ df['Billing City'] + ' ' + df['Billing State/Province'] + ' ' + df['Billing Zip/Postal Code'].map(str)
 	
-
+	# removes all \n 
 	df.address = df.address.str.replace(pat='\n', repl=' ',case=False)
 
 	return df
@@ -137,36 +141,30 @@ def gmplot_map_df(df):
 	gmap.scatter(lat_list, lon_list, 'red', size=100, marker=False)
 	#gmap.plot(lat_list, lon_list, 'cornflowerblue')
 	#gmap.heatmap(lat_list,lon_list)
-	gmap.draw(os.path.join(path,'gmplot_map.html'))
+	gmap.draw(os.path.join(path,'maps','gmplot_map.html'))
 
-def folium_map_df(df): 
+# https://www.geeksforgeeks.org/python-plotting-google-map-using-folium-package/ 
+def folium_map_df(df):
 	# make list of successful lat/long coordinates
 	df = df[df['success']==True]
 	lat_list = df['latitude']
 	lon_list = df['longitude']
 	pop_up_name = df['Program: Program Name']
-	# Map method of folium return Map object 
 
-	# Here we pass coordinates of Gfg 
-	# and starting Zoom level = 12 
+	# setup the map object centered in South West Houston
 	my_map1 = folium.Map(location = [29.7106415,-95.4970872], 
-											zoom_start = 12 ) 
-
-	folium.Marker([29.7106415,-95.4970872], 
-               popup = 'school stuff here ').add_to(my_map1)
-
+											zoom_start = 12 )
 	for i in range(0,len(lat_list)):
 		folium.Marker([lat_list.iloc[i], lon_list.iloc[i]], popup = pop_up_name.iloc[i]).add_to(my_map1)
 
-
 	# save method of Map object will create a map 
-	my_map1.save(os.path.join(path,'folium_map.html')) 
+	my_map1.save(os.path.join(path,'maps','folium_map.html')) 
 
 
 def load_and_clean_data():
 	df = load_data()
 	df = add_lat_long_to_df()
-	df.to_csv(r'C:\Users\slin2\Documents\ProUnitas\output.csv')
+	df.to_csv(os.path.join(path,'output.csv'))
 
 def test_run():
 	print('hello world')
@@ -192,10 +190,10 @@ def test_run():
 
 	print(df.head())
 
-	df.to_csv(r'C:\Users\slin2\Documents\ProUnitas\output.csv')
+	df.to_csv(os.path.join(path,'output.csv'))
 
 def testerino():
-	df = pd.read_csv(r'C:\Users\slin2\Documents\ProUnitas\output.csv')
+	df = pd.read_csv(os.path.join(path,'output.csv'))
 	print(df.head())
 	folium_map_df(df)
 	gmplot_map_df(df)
