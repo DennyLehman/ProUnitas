@@ -22,3 +22,4 @@ TO DO:
 Optimize lat/lon constructor
 Optimize get_lat_long method
 Create google map api key and move mapper to google maps
+add name, address, primary service area, and rating of the service
