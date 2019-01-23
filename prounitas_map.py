@@ -163,7 +163,7 @@ def folium_map_df(df):
 	#	folium.Marker([row.latitude, row.longitude], popup=row['Program: Program Name']).add_to(my_map1)
 
 	# using apply (fast!)
-	df.apply(lambda row: folium_marker_maker(row.latitude, row.longitude, row['Program: Program Name'], my_map1), axis=1)
+	df.apply(lambda row: folium_marker_maker(row.latitude, row.longitude, str(row['Program: Program Name']) + '\nRating: 4/5\nDescription: This is a nice place to go for services', my_map1), axis=1)
 
 	# vectorization
 	# This didnt work in this case
